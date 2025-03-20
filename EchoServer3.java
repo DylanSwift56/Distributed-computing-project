@@ -42,28 +42,46 @@ class SMPHandler implements Runnable {
                 String username = parts.length > 1 ? parts[1] : null;
                 String response = "";
 
-                switch (command) {
-                    case "LOGIN":
-                        String password = parts[2];
-                        response = handleLogin(username, password);
-                        break;
-                    case "UPLOAD":
-                        String messageContent = parts[2];
-                        response = handleUpload(username, messageContent);
-                        break;
-                    case "DOWNLOAD_ALL":
-                        response = handleDownloadAll(username);
-                        break;
-                    case "DOWNLOAD":
-                        String messageId = parts[2];
-                        response = handleDownload(username, messageId);
-                        break;
-                    case "LOGOUT":
-                        response = handleLogout(username);
-                        break;
-                    default:
-                        response = "500: Invalid command";
+                try {
+                    switch (command) {
+                        case "LOGIN":
+                            if (parts.length < 3) {
+                                response = "400: Invalid LOGIN command format";
+                            } else {
+                                String password = parts[2];
+                                response = handleLogin(username, password);
+                            }
+                            break;
+                        case "UPLOAD":
+                            if (parts.length < 3) {
+                                response = "400: Invalid UPLOAD command format";
+                            } else {
+                                String messageContent = parts[2];
+                                response = handleUpload(username, messageContent);
+                            }
+                            break;
+                        case "DOWNLOAD_ALL":
+                            response = handleDownloadAll(username);
+                            break;
+                        case "DOWNLOAD":
+                            if (parts.length < 3) {
+                                response = "400: Invalid DOWNLOAD command format";
+                            } else {
+                                String messageId = parts[2];
+                                response = handleDownload(username, messageId);
+                            }
+                            break;
+                        case "LOGOUT":
+                            response = handleLogout(username);
+                            break;
+                        default:
+                            response = "500: Invalid command";
+                    }
+                } catch (Exception e) {
+                    response = "500: Internal server error";
+                    e.printStackTrace();
                 }
+
                 myDataSocket.sendMessage(response);
             }
             myDataSocket.close();
@@ -73,6 +91,9 @@ class SMPHandler implements Runnable {
     }
 
     private String handleLogin(String username, String password) {
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            return "400: Username and password cannot be empty";
+        }
         File userFolder = new File(username);
         if (!userFolder.exists()) {
             if (!userFolder.mkdir()) {
@@ -83,6 +104,9 @@ class SMPHandler implements Runnable {
     }
 
     private String handleUpload(String username, String messageContent) {
+        if (messageContent == null || messageContent.isEmpty()) {
+            return "400: Message content cannot be empty";
+        }
         String messageId = String.valueOf(System.currentTimeMillis());
         File messageFile = new File(username + "/" + messageId + ".txt");
         try (FileWriter writer = new FileWriter(messageFile)) {
@@ -124,7 +148,6 @@ class SMPHandler implements Runnable {
     }
 
     private String handleLogout(String username) {
-        // Perform any necessary cleanup here (if required)
         return "401: Logout successful";
     }
 }

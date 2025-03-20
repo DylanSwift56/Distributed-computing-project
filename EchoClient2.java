@@ -18,7 +18,7 @@ public class EchoClient2 {
             EchoClientHelper2 helper = new EchoClientHelper2(hostName, portNum);
             boolean done = false;
 
-            // Login
+            //Login Logic
             System.out.print("Enter username: ");
             String username = br.readLine();
             System.out.print("Enter password: ");
@@ -33,20 +33,20 @@ public class EchoClient2 {
                     if (command.equals(endMessage)) {
                         done = true;
                         helper.done();
-                    } else if (command.equals("UPLOAD")) {
+                    } else if (command.equals("UPLOAD".toLowerCase())) {
                         System.out.print("Enter message to upload: ");
                         String message = br.readLine();
                         String uploadResponse = helper.sendRequest("UPLOAD:" + username + ":" + message);
                         System.out.println(uploadResponse);
-                    } else if (command.equals("DOWNLOAD_ALL")) {
+                    } else if (command.equals("DOWNLOAD_ALL".toLowerCase())) {
                         String downloadAllResponse = helper.sendRequest("DOWNLOAD_ALL:" + username);
                         System.out.println(downloadAllResponse);
-                    } else if (command.equals("DOWNLOAD")) {
+                    } else if (command.equals("DOWNLOAD".toLowerCase())) {
                         System.out.print("Enter message ID to download: ");
                         String messageId = br.readLine();
                         String downloadResponse = helper.sendRequest("DOWNLOAD:" + username + ":" + messageId);
                         System.out.println(downloadResponse);
-                    } else if (command.equals("LOGOUT")) {
+                    } else if (command.equals("LOGOUT".toLowerCase())) {
                         String logoutResponse = helper.sendRequest("LOGOUT:" + username);
                         System.out.println(logoutResponse);
                         done = true;
