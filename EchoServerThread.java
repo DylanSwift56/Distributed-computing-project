@@ -1,39 +1,37 @@
+import javax.net.ssl.*;
 import java.io.*;
-/**
- * This module is to be used with a concurrent Echo server.
- * Its run method carries out the logic of a client session.
- * @author M. L. Liu
- */
 
 class EchoServerThread implements Runnable {
-   static final String endMessage = ".";
-   MyStreamSocket myDataSocket;
+    private SSLSocket mySocket;
+    private BufferedReader in;
+    private PrintWriter out;
 
-   EchoServerThread(MyStreamSocket myDataSocket) {
-      this.myDataSocket = myDataSocket;
-   }
- 
-   public void run( ) {
-      boolean done = false;
-      String message;
-      try {
-         while (!done) {
-             message = myDataSocket.receiveMessage( );
-/**/         System.out.println("message received: "+ message);
-             if ((message.trim()).equals (endMessage)){
-                //Session over; close the data socket.
-/**/            System.out.println("Session over.");
-                myDataSocket.close( );
-                done = true;
-             } //end if
-             else {
-                // Now send the echo to the requestor
-                myDataSocket.sendMessage(message);
-             } //end else
-          } //end while !done
-        }// end try
-        catch (Exception ex) {
-           System.out.println("Exception caught in thread: " + ex);
-        } // end catch
-   } //end run
-} //end class 
+    EchoServerThread(SSLSocket mySocket) {
+        this.mySocket = mySocket;
+    }
+
+    public void run() {
+        try {
+            in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
+            out = new PrintWriter(mySocket.getOutputStream(), true);
+
+            System.out.println("SSL connection established with: " + mySocket.getInetAddress());
+
+            String message;
+            while ((message = in.readLine()) != null) {
+                if (message.trim().equals(".")) {
+                    System.out.println("Session over.");
+                    break;
+                }
+                System.out.println("Received: " + message);
+                out.println("Echo: " + message);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                mySocket.close();
+            } catch (IOException ignored) {}
+        }
+    }
+}
