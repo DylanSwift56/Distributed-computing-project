@@ -1,0 +1,65 @@
+@startuml class_diagram
+class EchoServer3 {
+    - serverSocket: ServerSocket
+    - clientSocket: Socket
+    - input: BufferedReader
+    - output: PrintWriter
+    + main(String[] args): void
+    + startServer(): void
+    + handleClient(Socket clientSocket): void
+    + stopServer(): void
+}
+
+class SMPClientController {
+    - socket: SSLSocket
+    - out: PrintWriter
+    - in: BufferedReader
+    - username: String
+    - serverProcess: Process
+    + SMPClientController(host: String, port: String)
+    - startServer(): void
+    - waitForServerToStart(waitTime: int): void
+    - connectToServer(host: String, port: String): void
+    + sendRequest(request: String): String
+    + login(username: String, password: String): String
+    + uploadMessage(message: String): String
+    + downloadAllMessages(): String
+    + downloadMessage(messageId: String): String
+    + logout(): String
+}
+
+class SMPClientGUI {
+    - frame: JFrame
+    - usernameField: JTextField
+    - passwordField: JPasswordField
+    - messageField: JTextField
+    - messageIdField: JTextField
+    - responseArea: JTextArea
+    - loginButton: JButton
+    - uploadButton: JButton
+    - downloadAllButton: JButton
+    - downloadButton: JButton
+    - logoutButton: JButton
+    - clientController: SMPClientController
+    + SMPClientGUI()
+    - initializeComponents(): void
+    - startServerAndConnect(): void
+    - addEventListeners(): void
+    - handleLogin(): void
+    - handleUpload(): void
+    - handleDownloadAll(): void
+    - handleDownload(): void
+    - handleLogout(): void
+    - enableMessageOperations(enable: boolean): void
+    + main(String[] args): void
+}
+
+class EchoClient2 {
+    static final String endMessage = "."
+    + main(String[] args): void
+}
+
+EchoServer3 --> SMPClientController : communicates with
+SMPClientController --> SMPClientGUI : interacts with
+SMPClientController --> EchoClient2 : used in CLI for testing
+@enduml
